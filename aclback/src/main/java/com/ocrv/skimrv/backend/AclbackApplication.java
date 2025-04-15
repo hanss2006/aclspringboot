@@ -1,4 +1,4 @@
-package com.hanss.aclback;
+package com.ocrv.skimrv.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package com.hanss.aclback.conf;
+package com.ocrv.skimrv.backend.conf;
 
 import org.h2.tools.Server;
 import org.springframework.context.annotation.Bean;

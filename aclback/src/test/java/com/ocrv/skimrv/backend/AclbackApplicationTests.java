@@ -1,4 +1,4 @@
-package com.hanss.aclback;
+package com.ocrv.skimrv.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
