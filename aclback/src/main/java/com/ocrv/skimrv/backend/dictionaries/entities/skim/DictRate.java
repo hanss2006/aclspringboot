@@ -3,7 +3,7 @@ package com.ocrv.skimrv.backend.dictionaries.entities.skim;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Data

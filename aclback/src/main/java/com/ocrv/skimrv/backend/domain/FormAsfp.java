@@ -3,7 +3,7 @@ package com.ocrv.skimrv.backend.domain;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ocrv.skimrv.backend.dictionaries.entities.asfp.DictRateAsfp;
 import com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary;
-import jakarta.persistence.*;
+import javax.persistence.*;
 import lombok.*;
 
 @Entity

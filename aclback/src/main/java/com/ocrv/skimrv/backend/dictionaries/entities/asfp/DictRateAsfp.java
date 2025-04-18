@@ -1,8 +1,7 @@
 package com.ocrv.skimrv.backend.dictionaries.entities.asfp;
 
-import jakarta.persistence.Column;
 import lombok.*;
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Getter
