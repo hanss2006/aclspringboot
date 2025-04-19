@@ -1,20 +1,39 @@
 package com.ocrv.skimrv.backend.conf;
 
+import com.ocrv.skimrv.backend.security.JwtAuthenticationFilter;
+import com.ocrv.skimrv.backend.security.JwtAuthorizationFilter;
+import com.ocrv.skimrv.backend.security.JwtTokenUtil;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import static javax.management.Query.and;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    private final JwtTokenUtil jwtTokenUtil;
+
+    public SecurityConfig(JwtTokenUtil jwtTokenUtil) {
+        this.jwtTokenUtil = jwtTokenUtil;
+    }
+
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return NoOpPasswordEncoder.getInstance();
+        return new BCryptPasswordEncoder();
     }
 
     @Override
@@ -36,9 +55,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/**").permitAll()
-                .and().httpBasic()
-                .and().csrf().disable();
+        http
+                .csrf().disable()
+                .authorizeRequests().antMatchers("/**").permitAll()
+                .and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), jwtTokenUtil))
+                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtTokenUtil));
         http.headers().frameOptions().disable();
     }
 }
