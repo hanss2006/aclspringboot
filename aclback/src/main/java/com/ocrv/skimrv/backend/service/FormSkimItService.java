@@ -8,6 +8,7 @@ import com.ocrv.skimrv.backend.dto.FormSkimItResponse;
 import com.ocrv.skimrv.backend.repository.DictRateRepository;
 import com.ocrv.skimrv.backend.repository.FormSkimItRepository;
 import com.ocrv.skimrv.backend.repository.OrgUnitDictionaryRepository;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -78,7 +79,7 @@ public class FormSkimItService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#formSkimIt, 'READ')")
+    @PostFilter("hasPermission(filterObject, 'READ')") // Фильтрация после выполнения метода
     public List<FormSkimItResponse> getAll() {
         return formSkimItRepository.findAll().stream()
                 .map(this::convertToResponse)
