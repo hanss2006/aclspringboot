@@ -2,13 +2,10 @@ package com.ocrv.skimrv.backend.security;
 
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenUtil {
@@ -18,11 +15,6 @@ public class JwtTokenUtil {
 
     @Value("${jwt.expiration}")
     private Long expiration;
-
-    public String getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return authentication.getName();
-    }
 
     public String generateToken(String username, List<String> roles) {
         return Jwts.builder()
@@ -42,14 +34,13 @@ public class JwtTokenUtil {
                 .getSubject();
     }
 
+    @SuppressWarnings("unchecked")
     public List<String> getRolesFromToken(String token) {
-        return ((List<?>) Jwts.parser()
+        return (List<String>) Jwts.parser()
                 .setSigningKey(secret.getBytes())
                 .parseClaimsJws(token)
                 .getBody()
-                .get("roles")).stream()
-                .map(Object::toString)
-                .collect(Collectors.toList());
+                .get("roles");
     }
 
     public boolean validateToken(String token) {

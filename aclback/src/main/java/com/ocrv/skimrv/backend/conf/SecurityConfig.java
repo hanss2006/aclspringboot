@@ -1,6 +1,5 @@
 package com.ocrv.skimrv.backend.conf;
 
-import com.ocrv.skimrv.backend.security.JwtAuthenticationFilter;
 import com.ocrv.skimrv.backend.security.JwtAuthorizationFilter;
 import com.ocrv.skimrv.backend.security.JwtTokenUtil;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +11,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
@@ -34,46 +36,46 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(AuthenticationManagerBuilder auth) throws Exception {
-
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.inMemoryAuthentication()
                 .withUser("user")
-                .password("user")
-                .authorities("ROLE_USER")
+                .password(passwordEncoder().encode("user"))
+                .roles("USER")
                 .and()
                 .withUser("admin")
-                .password("admin")
-                .authorities("ROLE_ADMINISTRATOR")
+                .password(passwordEncoder().encode("admin"))
+                .roles("ADMINISTRATOR")
                 .and()
                 .withUser("moderator")
-                .password("moderator")
-                .authorities("ROLE_MODERATOR");
+                .password(passwordEncoder().encode("moderator"))
+                .roles("MODERATOR");
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeRequests()
                 .antMatchers(
-                        "/auth/login",
+                        "/auth/**",
                         "/swagger-ui.html",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
-                        "/h2-console/**"
+                        "/h2-console/**",
+                        "/error"
                 ).permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .addFilter(new JwtAuthenticationFilter(authenticationManagerBean(), jwtTokenUtil))
-                .addFilter(new JwtAuthorizationFilter(authenticationManagerBean(), jwtTokenUtil));
-        http.headers().frameOptions().disable();
+                .addFilterBefore(
+                        new JwtAuthorizationFilter(jwtTokenUtil),
+                        UsernamePasswordAuthenticationFilter.class
+                )
+                .exceptionHandling()
+                .authenticationEntryPoint((request, response, authException) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized"));
+
+        // Для H2 Console
+        http.headers().frameOptions().sameOrigin();
     }
-/*
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/swagger-ui/**", "/v3/api-docs/**");
-    }
-*/
 }
