@@ -4,6 +4,7 @@ import com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary;
 import com.ocrv.skimrv.backend.dictionaries.entities.skim.DictRate;
 import com.ocrv.skimrv.backend.domain.FormSkimIt;
 import com.ocrv.skimrv.backend.service.MyACLService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
@@ -15,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import java.io.Serializable;
 import java.util.Collections;
 
+@Slf4j
 public class CustomPermissionEvaluator implements PermissionEvaluator {
     public CustomPermissionEvaluator(JdbcMutableAclService aclService) {
         myAclService = new MyACLService(aclService);
@@ -59,8 +61,50 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     }
 
     @Override
-    public boolean hasPermission(Authentication auth, Serializable targetId, String targetType, Object permission) {
-        // Не реализовано в данном примере
-        return false;
+    public boolean hasPermission(Authentication auth,
+                                 Serializable targetId,
+                                 String targetType,
+                                 Object permission) {
+        if (auth == null || targetId == null || targetType == null || !(permission instanceof String)) {
+            return false;
+        }
+
+        try {
+            // Получаем класс сущности по имени
+            Class<?> targetClass = Class.forName(targetType);
+
+            // Проверяем, что класс является одной из наших сущностей
+            if (!FormSkimIt.class.isAssignableFrom(targetClass) &&
+                    !OrgUnitDictionary.class.isAssignableFrom(targetClass) &&
+                    !DictRate.class.isAssignableFrom(targetClass)) {
+                return false;
+            }
+
+            // Создаем ObjectIdentity для проверки прав
+            ObjectIdentity objectIdentity = new ObjectIdentityImpl(targetType, targetId);
+
+            // Получаем ACL для этой сущности
+            Acl acl = myAclService.getMutableAclService().readAclById(objectIdentity);
+            Sid sid = new PrincipalSid(auth.getName());
+
+            // Получаем требуемое право из мапы
+            Permission requiredPermission = MyACLService.getPermissionMap()
+                    .get(((String) permission).toUpperCase());
+
+            // Проверяем права
+            return acl.isGranted(Collections.singletonList(requiredPermission),
+                    Collections.singletonList(sid),
+                    false);
+
+        } catch (ClassNotFoundException e) {
+            log.error("Class not found: {}", targetType, e);
+            return false;
+        } catch (NotFoundException e) {
+            log.debug("ACL not found for {} with id {}", targetType, targetId);
+            return false;
+        } catch (Exception e) {
+            log.error("Error checking permission", e);
+            return false;
+        }
     }
 }

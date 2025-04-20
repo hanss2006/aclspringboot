@@ -33,6 +33,7 @@ public class FormSkimItService {
     }
 
     @Transactional
+    @PreAuthorize("hasPermission(#id, 'com.ocrv.skimrv.backend.domain.FormSkimIt', 'CREATE')")
     public FormSkimItResponse create(FormSkimItDto dto) {
         DictRate dictRate = dictRateRepository.findById(dto.getDictRateId())
                 .orElseThrow(() -> new RuntimeException("DictRate not found with id: " + dto.getDictRateId()));
@@ -49,7 +50,7 @@ public class FormSkimItService {
     }
 
     @Transactional
-    @PreAuthorize("hasPermission(#formSkimIt, 'WRITE')")
+    @PreAuthorize("hasPermission(#id, 'com.ocrv.skimrv.backend.domain.FormSkimIt', 'WRITE')")
     public FormSkimItResponse update(Integer id, FormSkimItDto dto) {
         FormSkimIt existing = formSkimItRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("FormSkimIt not found with id: " + id));
@@ -71,7 +72,7 @@ public class FormSkimItService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasPermission(#formSkimIt, 'READ')")
+    @PreAuthorize("hasPermission(#id, 'com.ocrv.skimrv.backend.domain.FormSkimIt', 'READ')")
     public FormSkimItResponse getById(Integer id) {
         FormSkimIt entity = formSkimItRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("FormSkimIt not found with id: " + id));
