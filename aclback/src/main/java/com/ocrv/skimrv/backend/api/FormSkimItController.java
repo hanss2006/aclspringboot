@@ -3,6 +3,8 @@ package com.ocrv.skimrv.backend.api;
 import com.ocrv.skimrv.backend.dto.FormSkimItDto;
 import com.ocrv.skimrv.backend.dto.FormSkimItResponse;
 import com.ocrv.skimrv.backend.service.FormSkimItService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 
@@ -11,6 +13,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/form-skim-it")
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Protected API", description = "Защищенные endpoints")
 public class FormSkimItController {
 
     private final FormSkimItService formSkimItService;

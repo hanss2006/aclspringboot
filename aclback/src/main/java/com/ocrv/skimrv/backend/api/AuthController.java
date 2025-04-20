@@ -3,6 +3,8 @@ package com.ocrv.skimrv.backend.api;
 import com.ocrv.skimrv.backend.dto.JwtResponse;
 import com.ocrv.skimrv.backend.dto.LoginRequest;
 import com.ocrv.skimrv.backend.security.JwtTokenUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication", description = "API для аутентификации")
 public class AuthController {
 
     private final AuthenticationManager authenticationManager;
@@ -31,6 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Аутентификация пользователя")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         try {
             Authentication authentication = authenticationManager.authenticate(
