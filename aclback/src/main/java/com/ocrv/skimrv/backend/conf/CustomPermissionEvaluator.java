@@ -3,11 +3,11 @@ package com.ocrv.skimrv.backend.conf;
 import com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary;
 import com.ocrv.skimrv.backend.dictionaries.entities.skim.DictRate;
 import com.ocrv.skimrv.backend.domain.FormSkimIt;
-import com.ocrv.skimrv.backend.service.ACLService;
-import lombok.AllArgsConstructor;
+import com.ocrv.skimrv.backend.service.MyACLService;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
+import org.springframework.security.acls.jdbc.JdbcMutableAclService;
 import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.*;
 import org.springframework.security.core.Authentication;
@@ -15,9 +15,12 @@ import org.springframework.security.core.Authentication;
 import java.io.Serializable;
 import java.util.Collections;
 
-@AllArgsConstructor
 public class CustomPermissionEvaluator implements PermissionEvaluator {
-    private final ACLService aclService;
+    public CustomPermissionEvaluator(JdbcMutableAclService aclService) {
+        myAclService = new MyACLService(aclService);
+    }
+
+    private final MyACLService myAclService;
 
     @Override
     public boolean hasPermission(Authentication auth, Object targetDomainObject, Object permission) {
@@ -44,9 +47,9 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         ObjectIdentity objectIdentity = new ObjectIdentityImpl(clazz, id);
 
         try {
-            Acl acl = aclService.getMutableAclService().readAclById(objectIdentity);
+            Acl acl = myAclService.getMutableAclService().readAclById(objectIdentity);
             Sid sid = new PrincipalSid(auth.getName());
-            Permission requiredPermission = ACLService.getPermissionMap().get(((String) permission).toUpperCase());
+            Permission requiredPermission = MyACLService.getPermissionMap().get(((String) permission).toUpperCase());
 
             // Проверка прав доступа
             return acl.isGranted(Collections.singletonList(requiredPermission), Collections.singletonList(sid), false);

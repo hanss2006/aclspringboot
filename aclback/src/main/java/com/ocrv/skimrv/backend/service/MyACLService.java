@@ -1,5 +1,6 @@
 package com.ocrv.skimrv.backend.service;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.BasePermission;
@@ -22,9 +23,10 @@ import java.util.Map;
 /**
  * Service class to handle ACL permissions.
  */
+@Getter
 @Service
 @Slf4j
-public class ACLService {
+public class MyACLService {
     /**
      * Чтение.
      */
@@ -54,14 +56,6 @@ public class ACLService {
      */
     public static final String WRITESTR = "WRITE";
 
-    public MutableAclService getMutableAclService() {
-        return mutableAclService;
-    }
-
-    public SidRetrievalStrategy getSidRetrievalStrategy() {
-        return sidRetrievalStrategy;
-    }
-
     /**
      * Mutable Acl Service.
      */
@@ -78,13 +72,19 @@ public class ACLService {
      * @param mutableAclServicePar
      */
     @Autowired
-    public ACLService(final MutableAclService mutableAclServicePar) {
+    public MyACLService(final MutableAclService mutableAclServicePar) {
         this.mutableAclService = mutableAclServicePar;
     }
 
     /**
      * Разрешения.
+     * -- GETTER --
+     *  Чтение разрешения.
+     *
+     * @return Map<String, Permission>
+
      */
+    @Getter
     private static Map<String, Permission> permissionMap;
 
     static {
@@ -120,21 +120,12 @@ public class ACLService {
     }
 
     /**
-     * Чтение разрешения.
-     *
-     * @return Map<String, Permission>
-     */
-    public static Map<String, Permission> getPermissionMap() {
-        return permissionMap;
-    }
-
-    /**
      * Установка разрешения.
      *
      * @param permissionMapPar
      */
     public static void setPermissionMap(final Map<String, Permission> permissionMapPar) {
-        ACLService.permissionMap = permissionMapPar;
+        MyACLService.permissionMap = permissionMapPar;
     }
 
     /**
@@ -162,8 +153,8 @@ public class ACLService {
             acl = mutableAclService.createAcl(objectIdentity);
         }
 
-        deleteAceIfExists(sid, acl, ACLService.getPermissionMap().get(permission));
-        acl.insertAce(acl.getEntries().size(), ACLService.getPermissionMap().get(permission), sid, granting);
+        deleteAceIfExists(sid, acl, MyACLService.getPermissionMap().get(permission));
+        acl.insertAce(acl.getEntries().size(), MyACLService.getPermissionMap().get(permission), sid, granting);
 
         log.debug(mutableAclService.updateAcl(acl).toString());
     }
