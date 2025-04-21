@@ -104,19 +104,31 @@ CREATE TABLE acl_entry (
 INSERT INTO acl_class (id, CLASS)
 VALUES
   (
-    1, 'com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary'
+    1, 'OrgUnitDictionary'
   );
 
 INSERT INTO acl_class (id, CLASS)
 VALUES
   (
-    2, 'com.ocrv.skimrv.backend.dictionaries.entities.skim.DictRate'
+    2, 'DictRate'
   );
 
 INSERT INTO acl_class (id, CLASS)
 VALUES
   (
-    3, 'com.ocrv.skimrv.backend.dictionaries.entities.asfp.DictRateAsfp'
+    3, 'DictRateAsfp'
+  );
+
+INSERT INTO acl_class (id, CLASS)
+VALUES
+  (
+    4, 'FormSkimIt'
+  );
+
+INSERT INTO acl_class (id, CLASS)
+VALUES
+  (
+    5, 'FormAsfp'
   );
 
 INSERT INTO ACL_SID (PRINCIPAL, SID)
@@ -131,10 +143,7 @@ INSERT INTO ACL_SID (PRINCIPAL, SID)
 VALUES
   (FALSE, 'ROLE_MODERATOR');
 
-INSERT INTO acl_object_identity (
-  id, object_id_class, object_id_identity,
-  parent_object, owner_sid, entries_inheriting
-)
+INSERT INTO acl_object_identity (id, object_id_class, object_id_identity, parent_object, owner_sid, entries_inheriting)
 VALUES
   (1, 1, 1, NULL, 1, 0),
   (2, 1, 2, NULL, 1, 0),
@@ -153,19 +162,14 @@ VALUES
   (15, 3, 5, NULL, 1, 0);
 
 INSERT INTO acl_entry (
-  id, acl_object_identity, ace_order,
-  sid, mask, granting, audit_success,
-  audit_failure
-)
+  id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure)
 VALUES
   (1, 1, 1, 1, 1, 1, 1, 1),
   (2, 1, 2, 3, 1, 1, 1, 1),
   (3, 1, 3, 3, 2, 1, 1, 1);
 
 INSERT INTO acl_entry (
-  id, acl_object_identity, ace_order,
-  sid, mask, granting, audit_success,
-  audit_failure
+ id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure
 )
 VALUES
   (4, 2, 1, 2, 1, 1, 1, 1),
@@ -173,13 +177,18 @@ VALUES
   (6, 2, 3, 3, 2, 1, 1, 1);
 
 INSERT INTO acl_entry (
-  id, acl_object_identity, ace_order,
-  sid, mask, granting, audit_success,
-  audit_failure
+ id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure
 )
 VALUES
   (7, 3, 1, 3, 1, 1, 1, 1),
   (8, 3, 2, 3, 2, 1, 1, 1);
+
+INSERT INTO acl_entry (
+ id, acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure
+)
+VALUES
+  (9,  4, 1, 1, 1, 1, 1, 1),
+  (10, 4, 2, 1, 2, 1, 1, 1);
 
 INSERT INTO DICT_ORG_UNIT (ID, FULL_NAME)
 VALUES

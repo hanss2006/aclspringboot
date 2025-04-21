@@ -6,15 +6,18 @@ import com.ocrv.skimrv.backend.domain.FormSkimIt;
 import com.ocrv.skimrv.backend.service.MyACLService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
 import org.springframework.security.acls.domain.PrincipalSid;
 import org.springframework.security.acls.jdbc.JdbcMutableAclService;
-import org.springframework.security.acls.model.Permission;
 import org.springframework.security.acls.model.*;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Slf4j
 public class CustomPermissionEvaluator implements PermissionEvaluator {
@@ -29,12 +32,15 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         if (auth == null || targetDomainObject == null || !(permission instanceof String)) {
             return false;
         }
+        if (!(targetDomainObject instanceof FormSkimIt formSkimIt)) {
+            return false;
+        }
 
-        // Получить orgUnitDictionary.id и dictRate.id из сущности
-        FormSkimIt formSkimIt = (FormSkimIt) targetDomainObject;
         Integer orgUnitId = formSkimIt.getOrgUnitDictionary().getId();
         Integer dictRateId = formSkimIt.getDictRate().getId();
 
+        // Проверяем права на FormSkimIt
+        boolean hasFormSkimItPermission = checkPermission(auth, FormSkimIt.class, formSkimIt.getId(), permission);
         // Проверить права на orgUnitDictionary
         boolean hasOrgUnitPermission = checkPermission(auth, OrgUnitDictionary.class, orgUnitId, permission);
 
@@ -42,7 +48,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         boolean hasDictRatePermission = checkPermission(auth, DictRate.class, dictRateId, permission);
 
         // Если есть права хотя бы на одну из сущностей, то доступ разрешен
-        return hasOrgUnitPermission || hasDictRatePermission;
+        return hasFormSkimItPermission || hasOrgUnitPermission || hasDictRatePermission;
     }
 
     private boolean checkPermission(Authentication auth, Class<?> clazz, Serializable id, Object permission) {
@@ -50,11 +56,19 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
         try {
             Acl acl = myAclService.getMutableAclService().readAclById(objectIdentity);
-            Sid sid = new PrincipalSid(auth.getName());
+            // Получаем все роли пользователя
+            List<Sid> sids = new ArrayList<>();
+            for (GrantedAuthority authority : auth.getAuthorities()) {
+                sids.add(new GrantedAuthoritySid(authority.getAuthority()));
+            }
+
+            // Добавляем PrincipalSid для пользователя
+            sids.add(new PrincipalSid(auth.getName()));
+
             Permission requiredPermission = MyACLService.getPermissionMap().get(((String) permission).toUpperCase());
 
             // Проверка прав доступа
-            return acl.isGranted(Collections.singletonList(requiredPermission), Collections.singletonList(sid), false);
+            return acl.isGranted(Collections.singletonList(requiredPermission), sids, false);
         } catch (NotFoundException e) {
             return false;
         }
@@ -85,7 +99,15 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
             // Получаем ACL для этой сущности
             Acl acl = myAclService.getMutableAclService().readAclById(objectIdentity);
-            Sid sid = new PrincipalSid(auth.getName());
+
+            // Получаем все роли пользователя
+            List<Sid> sids = new ArrayList<>();
+            for (GrantedAuthority authority : auth.getAuthorities()) {
+                sids.add(new GrantedAuthoritySid(authority.getAuthority()));
+            }
+
+            // Добавляем PrincipalSid для пользователя
+            sids.add(new PrincipalSid(auth.getName()));
 
             // Получаем требуемое право из мапы
             Permission requiredPermission = MyACLService.getPermissionMap()
@@ -93,7 +115,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
             // Проверяем права
             return acl.isGranted(Collections.singletonList(requiredPermission),
-                    Collections.singletonList(sid),
+                    sids,
                     false);
 
         } catch (ClassNotFoundException e) {
