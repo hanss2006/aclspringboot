@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class CustomPermissionEvaluator implements PermissionEvaluator {
@@ -32,15 +33,23 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         if (auth == null || targetDomainObject == null || !(permission instanceof String)) {
             return false;
         }
-        if (!(targetDomainObject instanceof FormSkimIt formSkimIt)) {
+
+        if (!(targetDomainObject instanceof Optional)) {
             return false;
         }
+        Optional<FormSkimIt> optionalFormSkimIt = (Optional<FormSkimIt>) targetDomainObject;
+
+        if (optionalFormSkimIt.isEmpty()) {
+            return false;
+        }
+
+        FormSkimIt formSkimIt = optionalFormSkimIt.get();
 
         Integer orgUnitId = formSkimIt.getOrgUnitDictionary().getId();
         Integer dictRateId = formSkimIt.getDictRate().getId();
 
         // Проверяем права на FormSkimIt
-        boolean hasFormSkimItPermission = checkPermission(auth, FormSkimIt.class, formSkimIt.getId(), permission);
+        //boolean hasFormSkimItPermission = checkPermission(auth, FormSkimIt.class, formSkimIt.getId(), permission);
         // Проверить права на orgUnitDictionary
         boolean hasOrgUnitPermission = checkPermission(auth, OrgUnitDictionary.class, orgUnitId, permission);
 
@@ -48,7 +57,7 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         boolean hasDictRatePermission = checkPermission(auth, DictRate.class, dictRateId, permission);
 
         // Если есть права хотя бы на одну из сущностей, то доступ разрешен
-        return hasFormSkimItPermission || hasOrgUnitPermission || hasDictRatePermission;
+        return hasOrgUnitPermission && hasDictRatePermission;
     }
 
     private boolean checkPermission(Authentication auth, Class<?> clazz, Serializable id, Object permission) {
