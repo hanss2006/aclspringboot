@@ -56,18 +56,15 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
             return false;
         }
 
-        if (!(targetDomainObject instanceof Optional<?> optional) || optional.isEmpty()) {
-            return false;
+        Object domainObject = targetDomainObject;
+        if (targetDomainObject instanceof Optional<?> optional) {
+            domainObject = optional.get();
         }
-
-        Object domainObject = optional.get();
         Class<?> domainClass = domainObject.getClass();
-
         TriFunction<Authentication, Object, String, Boolean> handler = permissionHandlers.get(domainClass);
         if (handler == null) {
             return false; // нет обработчика для этого типа
         }
-
         return handler.apply(auth, domainObject, (String) permission);
     }
 
