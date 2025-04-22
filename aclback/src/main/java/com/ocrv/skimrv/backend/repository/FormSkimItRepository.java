@@ -13,18 +13,18 @@ import java.util.Optional;
 @Repository
 public interface FormSkimItRepository extends JpaRepository<FormSkimIt, Integer> {
     @Override
-    @PreAuthorize("hasPermission(#entity, 'CREATE')")
+    @PreAuthorize("hasPermission(#entity, 'CREATE') or hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')")
     <S extends FormSkimIt> S save(S entity);
 
     @Override
-    @PreAuthorize("hasPermission(#entity, 'DELETE')")
+    @PreAuthorize("hasPermission(#entity, 'DELETE') or hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')")
     void delete(FormSkimIt entity);
 
     @Override
-    @PostAuthorize("hasPermission(returnObject, 'READ')")
+    @PostAuthorize("hasPermission(returnObject, 'READ') or hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')")
     Optional<FormSkimIt> findById(Integer integer);
 
     @Override
-    @PostFilter("hasPermission(filterObject, 'READ')")
+    @PostFilter("hasPermission(filterObject, 'READ') or hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')")
     List<FormSkimIt> findAll();
 }

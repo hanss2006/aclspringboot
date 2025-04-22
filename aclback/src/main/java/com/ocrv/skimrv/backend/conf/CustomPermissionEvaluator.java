@@ -22,11 +22,6 @@ import java.util.*;
 
 @Slf4j
 public class CustomPermissionEvaluator implements PermissionEvaluator {
-
-    // Роли пользователей, на которые не действуют лимитейшинс.
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
-    public static final String ROLE_DEVELOPER = "ROLE_DEVELOPER";
-
     public CustomPermissionEvaluator(JdbcMutableAclService aclService) {
         myAclService = new MyACLService(aclService);
     }
@@ -57,14 +52,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     @Override
     public boolean hasPermission(Authentication auth, Object targetDomainObject, Object permission) {
-        for (GrantedAuthority authority : auth.getAuthorities()) {
-            String role = authority.getAuthority();
-            // Полный доступ для администраторов и разработчиков
-            if (role.equals(ROLE_ADMIN) || role.equals(ROLE_DEVELOPER)) {
-                return true;
-            }
-        }
-
         if (auth == null || targetDomainObject == null || !(permission instanceof String)) {
             return false;
         }
