@@ -65,8 +65,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         Integer orgUnitId = formSkimIt.getOrgUnitDictionary().getId();
         Integer dictRateId = formSkimIt.getDictRate().getId();
 
-        // Проверяем права на FormSkimIt
-        //boolean hasFormSkimItPermission = checkPermission(auth, FormSkimIt.class, formSkimIt.getId(), permission);
         // Проверить права на orgUnitDictionary
         boolean hasOrgUnitPermission = checkPermission(auth, OrgUnitDictionary.class, orgUnitId, permission);
 
