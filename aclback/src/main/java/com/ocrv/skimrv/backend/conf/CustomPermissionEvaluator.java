@@ -108,16 +108,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
         }
 
         try {
-            // Получаем класс сущности по имени
-            Class<?> targetClass = Class.forName(targetType);
-
-            // Проверяем, что класс является одной из наших сущностей
-            if (!FormSkimIt.class.isAssignableFrom(targetClass) &&
-                    !OrgUnitDictionary.class.isAssignableFrom(targetClass) &&
-                    !DictRate.class.isAssignableFrom(targetClass)) {
-                return false;
-            }
-
             // Создаем ObjectIdentity для проверки прав
             ObjectIdentity objectIdentity = new ObjectIdentityImpl(targetType, targetId);
 
@@ -142,9 +132,6 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
                     sids,
                     false);
 
-        } catch (ClassNotFoundException e) {
-            log.error("Class not found: {}", targetType, e);
-            return false;
         } catch (NotFoundException e) {
             log.debug("ACL not found for {} with id {}", targetType, targetId);
             return false;
