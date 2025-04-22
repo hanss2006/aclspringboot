@@ -1,10 +1,13 @@
 package com.ocrv.skimrv.backend.conf;
 
+import com.ocrv.skimrv.backend.dictionaries.entities.asfp.DictRateAsfp;
 import com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary;
 import com.ocrv.skimrv.backend.dictionaries.entities.skim.DictRate;
+import com.ocrv.skimrv.backend.domain.FormAsfp;
 import com.ocrv.skimrv.backend.domain.FormSkimIt;
 import com.ocrv.skimrv.backend.service.MyACLService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.function.TriFunction;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -15,14 +18,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 public class CustomPermissionEvaluator implements PermissionEvaluator {
 
+    // Роли пользователей, на которые не действуют лимитейшинс.
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
     public static final String ROLE_DEVELOPER = "ROLE_DEVELOPER";
 
@@ -31,6 +32,28 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     }
 
     private final MyACLService myAclService;
+
+    // Таблица обработчиков разрешений
+    private final Map<Class<?>, TriFunction<Authentication, Object, String, Boolean>> permissionHandlers = Map.of(
+            FormSkimIt.class, (auth, obj, perm) -> handleFormSkimIt(auth, (FormSkimIt) obj, perm),
+            FormAsfp.class, (auth, obj, perm) -> handleFormAsfpClass(auth, (FormAsfp) obj, perm)
+    );
+
+    // Обработчик разрешений для сущности FormSkimIt
+    private boolean handleFormSkimIt(Authentication auth, FormSkimIt formSkimIt, String permission) {
+        Integer orgUnitId = formSkimIt.getOrgUnitDictionary().getId();
+        Integer dictRateId = formSkimIt.getDictRate().getId();
+
+        boolean hasOrgUnitPermission = checkPermission(auth, OrgUnitDictionary.class, orgUnitId, permission);
+        boolean hasDictRatePermission = checkPermission(auth, DictRate.class, dictRateId, permission);
+
+        return hasOrgUnitPermission && hasDictRatePermission;
+    }
+
+    // Обработчик разрешений для сущности FormAsfp
+    private boolean handleFormAsfpClass(Authentication auth, FormAsfp formAsfp, String permission) {
+        return checkPermission(auth, DictRateAsfp.class, formAsfp.getId(), permission);
+    }
 
     @Override
     public boolean hasPermission(Authentication auth, Object targetDomainObject, Object permission) {
@@ -46,33 +69,19 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
             return false;
         }
 
-        if (
-                !(targetDomainObject instanceof Optional)||
-                 ((Optional<?>) targetDomainObject).isEmpty()||
-                !(((Optional<?>)(targetDomainObject)).get() instanceof FormSkimIt)
-        ) {
+        if (!(targetDomainObject instanceof Optional<?> optional) || optional.isEmpty()) {
             return false;
         }
 
-        Optional<FormSkimIt> optionalFormSkimIt = (Optional<FormSkimIt>) targetDomainObject;
+        Object domainObject = optional.get();
+        Class<?> domainClass = domainObject.getClass();
 
-        if (optionalFormSkimIt.isEmpty()) {
-            return false;
+        TriFunction<Authentication, Object, String, Boolean> handler = permissionHandlers.get(domainClass);
+        if (handler == null) {
+            return false; // нет обработчика для этого типа
         }
 
-        FormSkimIt formSkimIt = optionalFormSkimIt.get();
-
-        Integer orgUnitId = formSkimIt.getOrgUnitDictionary().getId();
-        Integer dictRateId = formSkimIt.getDictRate().getId();
-
-        // Проверить права на orgUnitDictionary
-        boolean hasOrgUnitPermission = checkPermission(auth, OrgUnitDictionary.class, orgUnitId, permission);
-
-        // Проверить права на dictRate
-        boolean hasDictRatePermission = checkPermission(auth, DictRate.class, dictRateId, permission);
-
-        // Если есть права хотя бы на одну из сущностей, то доступ разрешен
-        return hasOrgUnitPermission && hasDictRatePermission;
+        return handler.apply(auth, domainObject, (String) permission);
     }
 
     private boolean checkPermission(Authentication auth, Class<?> clazz, Serializable id, Object permission) {
