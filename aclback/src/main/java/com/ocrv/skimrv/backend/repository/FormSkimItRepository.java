@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface FormSkimItRepository extends JpaRepository<FormSkimIt, Integer> {
     @Override
-    @PreAuthorize("hasPermission(#entity, 'CREATE') or hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')")
+    @PreAuthorize("hasPermission(#entity, 'WRITE') or hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')")
     <S extends FormSkimIt> S save(S entity);
 
     @Override
