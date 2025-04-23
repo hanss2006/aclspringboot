@@ -24,7 +24,7 @@ public class PermissionController {
     }
 
     @PostMapping("/user")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
     public ResponseEntity<Void> addPermissionForUser(
             @RequestParam String entityType,
             @RequestParam Integer entityId,
@@ -39,7 +39,7 @@ public class PermissionController {
     }
 
     @PostMapping("/authority")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> addPermissionForAuthority(
             @RequestParam String entityType,
             @RequestParam Integer entityId,
@@ -54,21 +54,21 @@ public class PermissionController {
     }
 
     @PostMapping("/sid")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
     public ResponseEntity<Long> createSid(@RequestParam String name, @RequestParam boolean principal) {
         Long id = permissionService.ensureSidExists(name, principal);
         return ResponseEntity.ok(id);
     }
 
     @PostMapping("/class")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
     public ResponseEntity<Long> createClass(@RequestParam String className) {
         Long id = permissionService.ensureClassExists(className);
         return ResponseEntity.ok(id);
     }
 
     @PostMapping("/identity")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
     public ResponseEntity<Long> createObjectIdentity(
             @RequestParam String className,
             @RequestParam Integer objectId,
@@ -81,7 +81,7 @@ public class PermissionController {
     }
 
     @PostMapping("/identity/change-owner")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
     public ResponseEntity<Void> changeOwner(
             @RequestParam Long id,
             @RequestParam String newOwner,
@@ -92,7 +92,7 @@ public class PermissionController {
     }
 
     @PostMapping("/identity/change-parent")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
     public ResponseEntity<Void> changeParent(
             @RequestParam Long id,
             @RequestParam Long parentId) {
