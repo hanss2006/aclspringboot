@@ -1,5 +1,6 @@
 package com.ocrv.skimrv.backend.service;
 
+import com.ocrv.skimrv.backend.repository.AclSupportRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
@@ -24,6 +25,9 @@ public class PermissionService {
     private MutableAclService aclService;
     @Autowired
     private PlatformTransactionManager transactionManager;
+    @Autowired
+    private AclSupportRepository aclSupportRepository;
+
     public void addPermissionForUser(String targetObjClassName, Integer id, Permission permission, String username) {
         final Sid sid = new PrincipalSid(username);
         addPermissionForSid(targetObjClassName, id, permission, sid);
@@ -55,5 +59,29 @@ public class PermissionService {
                 aclService.updateAcl(acl);
             }
         });
+    }
+
+    public Long ensureSidExists(String sidName, boolean isPrincipal) {
+        return aclSupportRepository.createOrGetSid(sidName, isPrincipal);
+    }
+
+    public Long ensureClassExists(String className) {
+        return aclSupportRepository.createOrGetClass(className);
+    }
+
+
+    public Long createObjectIdentity(String className, Integer objectId, String ownerSid, boolean isPrincipal, Long parentId) {
+        Long classId = aclSupportRepository.createOrGetClass(className);
+        Long ownerSidId = ownerSid != null ? aclSupportRepository.createOrGetSid(ownerSid, isPrincipal) : null;
+        return aclSupportRepository.createOrGetObjectIdentity(classId, objectId.longValue(), ownerSidId, parentId);
+    }
+
+    public void changeOwner(Long objectIdentityId, String newOwner, boolean isPrincipal) {
+        Long ownerSidId = aclSupportRepository.createOrGetSid(newOwner, isPrincipal);
+        aclSupportRepository.updateObjectIdentityOwner(objectIdentityId, ownerSidId);
+    }
+
+    public void changeParent(Long objectIdentityId, Long parentId) {
+        aclSupportRepository.updateObjectIdentityParent(objectIdentityId, parentId);
     }
 }

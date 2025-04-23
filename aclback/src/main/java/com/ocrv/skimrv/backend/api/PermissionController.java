@@ -52,4 +52,52 @@ public class PermissionController {
         permissionService.addPermissionForAuthority(entityType, entityId, perm, authority);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/sid")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    public ResponseEntity<Long> createSid(@RequestParam String name, @RequestParam boolean principal) {
+        Long id = permissionService.ensureSidExists(name, principal);
+        return ResponseEntity.ok(id);
+    }
+
+    @PostMapping("/class")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    public ResponseEntity<Long> createClass(@RequestParam String className) {
+        Long id = permissionService.ensureClassExists(className);
+        return ResponseEntity.ok(id);
+    }
+
+    @PostMapping("/identity")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    public ResponseEntity<Long> createObjectIdentity(
+            @RequestParam String className,
+            @RequestParam Integer objectId,
+            @RequestParam(required = false) String ownerSid,
+            @RequestParam(defaultValue = "true") boolean principal,
+            @RequestParam(required = false) Long parentId) {
+
+        Long id = permissionService.createObjectIdentity(className, objectId, ownerSid, principal, parentId);
+        return ResponseEntity.ok(id);
+    }
+
+    @PostMapping("/identity/change-owner")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    public ResponseEntity<Void> changeOwner(
+            @RequestParam Long id,
+            @RequestParam String newOwner,
+            @RequestParam(defaultValue = "true") boolean principal) {
+
+        permissionService.changeOwner(id, newOwner, principal);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/identity/change-parent")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')") // Защита endpoint'а
+    public ResponseEntity<Void> changeParent(
+            @RequestParam Long id,
+            @RequestParam Long parentId) {
+
+        permissionService.changeParent(id, parentId);
+        return ResponseEntity.ok().build();
+    }
 }
