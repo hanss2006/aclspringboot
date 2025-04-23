@@ -1,6 +1,6 @@
 package com.ocrv.skimrv.backend.service;
 
-import com.ocrv.skimrv.backend.domain.IEntity;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.acls.domain.GrantedAuthoritySid;
 import org.springframework.security.acls.domain.ObjectIdentityImpl;
@@ -14,28 +14,37 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.transaction.Transactional;
 
+import static java.lang.Class.forName;
+
 @Service
 @Transactional
+@Slf4j
 public class PermissionService {
     @Autowired
     private MutableAclService aclService;
     @Autowired
     private PlatformTransactionManager transactionManager;
-    public void addPermissionForUser(IEntity targetObj, Permission permission, String username) {
+    public void addPermissionForUser(String targetObjClassName, Integer id, Permission permission, String username) {
         final Sid sid = new PrincipalSid(username);
-        addPermissionForSid(targetObj, permission, sid);
+        addPermissionForSid(targetObjClassName, id, permission, sid);
     }
-    public void addPermissionForAuthority(IEntity targetObj, Permission permission, String authority) {
+    public void addPermissionForAuthority(String targetObjClassName, Integer id, Permission permission, String authority) {
         final Sid sid = new GrantedAuthoritySid(authority);
-        addPermissionForSid(targetObj, permission, sid);
+        addPermissionForSid(targetObjClassName, id, permission, sid);
     }
-    private void addPermissionForSid(IEntity targetObj, Permission permission, Sid sid) {
+    private void addPermissionForSid(String targetObjClassName, Integer id, Permission permission, Sid sid) {
         final TransactionTemplate tt = new TransactionTemplate(transactionManager);
         tt.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
-                final ObjectIdentity oi = new ObjectIdentityImpl(targetObj.getClass(), targetObj.getId());
-                MutableAcl acl = null;
+                final ObjectIdentity oi;
+                try {
+                    oi = new ObjectIdentityImpl(forName(targetObjClassName), id);
+                } catch (ClassNotFoundException e) {
+                    log.debug("Class does not found {}", targetObjClassName);
+                    throw new RuntimeException(e);
+                }
+                MutableAcl acl;
                 try {
                     acl = (MutableAcl) aclService.readAclById(oi);
                 } catch (final NotFoundException nfe) {
