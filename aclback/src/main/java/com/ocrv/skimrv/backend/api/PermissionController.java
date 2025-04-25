@@ -24,7 +24,7 @@ public class PermissionController {
     }
 
     @PostMapping("/user")
-    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')") // Защита endpoint'а
     public ResponseEntity<Void> addPermissionForUser(
             @RequestParam String entityType,
             @RequestParam Integer entityId,
@@ -39,7 +39,7 @@ public class PermissionController {
     }
 
     @PostMapping("/authority")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')")
     public ResponseEntity<Void> addPermissionForAuthority(
             @RequestParam String entityType,
             @RequestParam Integer entityId,
@@ -54,21 +54,21 @@ public class PermissionController {
     }
 
     @PostMapping("/sid")
-    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')") // Защита endpoint'а
     public ResponseEntity<Long> createSid(@RequestParam String name, @RequestParam boolean principal) {
         Long id = permissionService.ensureSidExists(name, principal);
         return ResponseEntity.ok(id);
     }
 
     @PostMapping("/class")
-    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')") // Защита endpoint'а
     public ResponseEntity<Long> createClass(@RequestParam String className) {
         Long id = permissionService.ensureClassExists(className);
         return ResponseEntity.ok(id);
     }
 
     @PostMapping("/identity")
-    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')") // Защита endpoint'а
     public ResponseEntity<Long> createObjectIdentity(
             @RequestParam String className,
             @RequestParam Integer objectId,
@@ -81,7 +81,7 @@ public class PermissionController {
     }
 
     @PostMapping("/identity/change-owner")
-    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')") // Защита endpoint'а
     public ResponseEntity<Void> changeOwner(
             @RequestParam Long id,
             @RequestParam String newOwner,
@@ -92,7 +92,7 @@ public class PermissionController {
     }
 
     @PostMapping("/identity/change-parent")
-    @PreAuthorize("hasRole('ADMIN')") // Защита endpoint'а
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_DEVELOPER')") // Защита endpoint'а
     public ResponseEntity<Void> changeParent(
             @RequestParam Long id,
             @RequestParam Long parentId) {
