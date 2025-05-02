@@ -29,25 +29,37 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
     private final MyACLService myAclService;
 
     // Таблица обработчиков разрешений
-    private final Map<Class<?>, TriFunction<Authentication, Object, String, Boolean>> permissionHandlers = Map.of(
-            FormSkimIt.class, (auth, obj, perm) -> handleFormSkimIt(auth, (FormSkimIt) obj, perm),
-            FormAsfp.class, (auth, obj, perm) -> handleFormAsfpClass(auth, (FormAsfp) obj, perm)
+    private final Map<String, TriFunction<Authentication, Object, String, Boolean>> permissionHandlers = Map.of(
+            "InputOrgUnitDictionary", (auth, obj, perm) -> handleInputOrgUnitDictionary(auth, (OrgUnitDictionary) obj, perm),
+            OrgUnitDictionary.class.getName(), (auth, obj, perm) -> handleOrgUnitDictionaryClass(auth, (OrgUnitDictionary) obj, perm),
+            FormSkimIt.class.getName(), (auth, obj, perm) -> handleFormSkimIt(auth, (FormSkimIt) obj, perm),
+            FormAsfp.class.getName(), (auth, obj, perm) -> handleFormAsfpClass(auth, (FormAsfp) obj, perm)
     );
+
+    // Обработчик разрешений для сущности InputOrgUnitDictionary
+    private boolean handleInputOrgUnitDictionary(Authentication auth, OrgUnitDictionary orgUnitDictionary, String permission) {
+        return checkPermission(auth, OrgUnitDictionary.class.getName(), orgUnitDictionary.getId(), permission);
+    }
+
+    // Обработчик разрешений для сущности OrgUnitDictionary
+    private boolean handleOrgUnitDictionaryClass(Authentication auth, OrgUnitDictionary orgUnitDictionary, String permission) {
+        return checkPermission(auth, OrgUnitDictionary.class.getName(), orgUnitDictionary.getId(), permission);
+    }
 
     // Обработчик разрешений для сущности FormSkimIt
     private boolean handleFormSkimIt(Authentication auth, FormSkimIt formSkimIt, String permission) {
         Integer orgUnitId = formSkimIt.getOrgUnitDictionary().getId();
         Integer dictRateId = formSkimIt.getDictRate().getId();
 
-        boolean hasOrgUnitPermission = checkPermission(auth, OrgUnitDictionary.class, orgUnitId, permission);
-        boolean hasDictRatePermission = checkPermission(auth, DictRate.class, dictRateId, permission);
+        boolean hasOrgUnitPermission = checkPermission(auth, OrgUnitDictionary.class.getName(), orgUnitId, permission);
+        boolean hasDictRatePermission = checkPermission(auth, DictRate.class.getName(), dictRateId, permission);
 
         return hasOrgUnitPermission && hasDictRatePermission;
     }
 
     // Обработчик разрешений для сущности FormAsfp
     private boolean handleFormAsfpClass(Authentication auth, FormAsfp formAsfp, String permission) {
-        return checkPermission(auth, DictRateAsfp.class, formAsfp.getId(), permission);
+        return checkPermission(auth, DictRateAsfp.class.getName(), formAsfp.getId(), permission);
     }
 
     @Override
@@ -61,15 +73,15 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
             domainObject = optional.get();
         }
         Class<?> domainClass = domainObject.getClass();
-        TriFunction<Authentication, Object, String, Boolean> handler = permissionHandlers.get(domainClass);
+        TriFunction<Authentication, Object, String, Boolean> handler = permissionHandlers.get(domainClass.getName());
         if (handler == null) {
             return false; // нет обработчика для этого типа
         }
         return handler.apply(auth, domainObject, (String) permission);
     }
 
-    private boolean checkPermission(Authentication auth, Class<?> clazz, Serializable id, Object permission) {
-        ObjectIdentity objectIdentity = new ObjectIdentityImpl(clazz, id);
+    private boolean checkPermission(Authentication auth, String className, Serializable id, Object permission) {
+        ObjectIdentity objectIdentity = new ObjectIdentityImpl(className, id);
 
         try {
             Acl acl = myAclService.getMutableAclService().readAclById(objectIdentity);

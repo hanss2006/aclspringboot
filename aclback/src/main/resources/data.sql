@@ -105,7 +105,8 @@ INSERT INTO acl_class (CLASS)
 VALUES
   ('com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary'),
   ('com.ocrv.skimrv.backend.dictionaries.entities.skim.DictRate'),
-  ('com.ocrv.skimrv.backend.dictionaries.entities.asfp.DictRateAsfp');
+  ('com.ocrv.skimrv.backend.dictionaries.entities.asfp.DictRateAsfp'),
+  ('InputOrgUnitDictionary');
 
 INSERT INTO ACL_SID (PRINCIPAL, SID)
 VALUES
@@ -129,7 +130,11 @@ VALUES
   (3, 2, NULL, 1, 0),
   (3, 3, NULL, 1, 0),
   (3, 4, NULL, 1, 0),
-  (3, 5, NULL, 1, 0);
+  (3, 5, NULL, 1, 0),
+  (4, 1, NULL, 1, 0),
+  (4, 2, NULL, 1, 0),
+  (4, 3, NULL, 1, 0),
+  (4, 4, NULL, 1, 0);
 
 INSERT INTO acl_entry (
   acl_object_identity, ace_order, sid, mask, granting, audit_success, audit_failure
@@ -139,12 +144,12 @@ VALUES
   (1, 2, 2, 2, 1, 1, 1),
   (2, 1, 2, 1, 1, 1, 1),
   (2, 2, 2, 2, 1, 1, 1),
-  (3, 1, 2, 1, 1, 1, 1),
-  (3, 2, 2, 2, 1, 1, 1),
-  (4, 1, 2, 1, 1, 1, 1),
-  (4, 2, 2, 2, 1, 1, 1),
-  (5, 1, 2, 1, 1, 1, 1),
-  (5, 2, 2, 2, 1, 1, 1),
+ -- (3, 1, 2, 1, 1, 1, 1),
+ -- (3, 2, 2, 2, 1, 1, 1),
+ -- (4, 1, 2, 1, 1, 1, 1),
+ -- (4, 2, 2, 2, 1, 1, 1),
+ -- (5, 1, 2, 1, 1, 1, 1),
+ -- (5, 2, 2, 2, 1, 1, 1),
   (6, 1, 2, 1, 1, 1, 1),
   (6, 2, 2, 2, 1, 1, 1),
   (7, 1, 2, 1, 1, 1, 1),
@@ -154,7 +159,13 @@ VALUES
   (9, 1, 2, 1, 1, 1, 1),
   (9, 2, 2, 2, 1, 1, 1),
   (10, 1, 2, 1, 1, 1, 1),
-  (10, 2, 2, 2, 1, 1, 1);
+  (10, 2, 2, 2, 1, 1, 1),
+  (11, 1, 2, 1, 1, 1, 1),
+  (12, 1, 2, 1, 1, 1, 1),
+  (13, 1, 2, 1, 1, 1, 1),
+  (14, 1, 2, 1, 1, 1, 1),
+  (15, 1, 2, 1, 1, 1, 1),
+  (16, 1, 2, 1, 1, 1, 1);
 
 INSERT INTO DICT_ORG_UNIT (ID, FULL_NAME)
 VALUES

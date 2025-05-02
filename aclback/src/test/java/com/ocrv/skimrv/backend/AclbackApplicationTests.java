@@ -23,6 +23,14 @@ public class AclbackApplicationTests {
 	private ObjectMapper objectMapper;
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Test
+	@WithMockUser(username = "user")
+	public void userUnitDictionaries() throws Exception {
+		mockMvc.perform(get("/api/form-skim-it/orgUnitDictionaries"))
+				.andExpect(status().isOk());
+	}
+
 	@Test
 	@WithMockUser(username = "admin")
 	public void user1ShouldGetDocument1() throws Exception {
