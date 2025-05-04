@@ -5,6 +5,7 @@ import com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary;
 import com.ocrv.skimrv.backend.dictionaries.entities.skim.DictRate;
 import com.ocrv.skimrv.backend.domain.FormAsfp;
 import com.ocrv.skimrv.backend.domain.FormSkimIt;
+import com.ocrv.skimrv.backend.dto.InputOrgUnitDictionaryDto;
 import com.ocrv.skimrv.backend.service.MyACLService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.function.TriFunction;
@@ -30,15 +31,15 @@ public class CustomPermissionEvaluator implements PermissionEvaluator {
 
     // Таблица обработчиков разрешений
     private final Map<String, TriFunction<Authentication, Object, String, Boolean>> permissionHandlers = Map.of(
-            "InputOrgUnitDictionary", (auth, obj, perm) -> handleInputOrgUnitDictionary(auth, (OrgUnitDictionary) obj, perm),
+            InputOrgUnitDictionaryDto.class.getName(), (auth, obj, perm) -> handleInputOrgUnitDictionary(auth, (InputOrgUnitDictionaryDto) obj, perm),
             OrgUnitDictionary.class.getName(), (auth, obj, perm) -> handleOrgUnitDictionaryClass(auth, (OrgUnitDictionary) obj, perm),
             FormSkimIt.class.getName(), (auth, obj, perm) -> handleFormSkimIt(auth, (FormSkimIt) obj, perm),
             FormAsfp.class.getName(), (auth, obj, perm) -> handleFormAsfpClass(auth, (FormAsfp) obj, perm)
     );
 
     // Обработчик разрешений для сущности InputOrgUnitDictionary
-    private boolean handleInputOrgUnitDictionary(Authentication auth, OrgUnitDictionary orgUnitDictionary, String permission) {
-        return checkPermission(auth, OrgUnitDictionary.class.getName(), orgUnitDictionary.getId(), permission);
+    private boolean handleInputOrgUnitDictionary(Authentication auth, InputOrgUnitDictionaryDto inputOrgUnitDictionary, String permission) {
+        return checkPermission(auth, InputOrgUnitDictionaryDto.class.getName(), inputOrgUnitDictionary.getId(), permission);
     }
 
     // Обработчик разрешений для сущности OrgUnitDictionary

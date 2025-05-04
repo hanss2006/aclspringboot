@@ -106,7 +106,7 @@ VALUES
   ('com.ocrv.skimrv.backend.dictionaries.entities.simple.OrgUnitDictionary'),
   ('com.ocrv.skimrv.backend.dictionaries.entities.skim.DictRate'),
   ('com.ocrv.skimrv.backend.dictionaries.entities.asfp.DictRateAsfp'),
-  ('InputOrgUnitDictionary');
+  ('com.ocrv.skimrv.backend.dto.InputOrgUnitDictionaryDto');
 
 INSERT INTO ACL_SID (PRINCIPAL, SID)
 VALUES
@@ -163,8 +163,8 @@ VALUES
   (11, 1, 2, 1, 1, 1, 1),
   (12, 1, 2, 1, 1, 1, 1),
   (13, 1, 2, 1, 1, 1, 1),
-  (14, 1, 2, 1, 1, 1, 1),
-  (15, 1, 2, 1, 1, 1, 1),
+--  (14, 1, 2, 1, 1, 1, 1),
+--  (15, 1, 2, 1, 1, 1, 1),
   (16, 1, 2, 1, 1, 1, 1);
 
 INSERT INTO DICT_ORG_UNIT (ID, FULL_NAME)

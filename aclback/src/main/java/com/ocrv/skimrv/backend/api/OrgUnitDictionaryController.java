@@ -1,6 +1,7 @@
 package com.ocrv.skimrv.backend.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.ocrv.skimrv.backend.dto.InputOrgUnitDictionaryDto;
 import com.ocrv.skimrv.backend.dto.OrgUnitDictionaryDto;
 import com.ocrv.skimrv.backend.service.OrgUnitDictionaryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,8 +29,8 @@ public class OrgUnitDictionaryController {
     }
 
     @GetMapping("/input")
-    public Page<OrgUnitDictionaryDto> getAllInput(Pageable pageable) {
-        return orgUnitDictionaryService.getAllInput(pageable);
+    public Page<InputOrgUnitDictionaryDto> getAllInput(Pageable pageable) {
+        return orgUnitDictionaryService.getAllInputPage(pageable);
     }
 
 
