@@ -45,7 +45,6 @@ public class OrgUnitDictionaryService {
     }
 
     @PostFilter("hasPermission(filterObject, 'READ')")
-    @Transactional
     public List<InputOrgUnitDictionaryDto> getAllInput() {
         List<OrgUnitDictionary> orgUnitDictionaries = inputOrgUnitDictionaryRepository.findAll();
         InputOrgUnitDictionaryMapper mapper = Mappers.getMapper(InputOrgUnitDictionaryMapper.class);
@@ -53,12 +52,6 @@ public class OrgUnitDictionaryService {
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
         return dtos;
-    }
-
-    public Page<InputOrgUnitDictionaryDto> getAllInputPage(Pageable pageable) {
-        List<InputOrgUnitDictionaryDto> dtos = getAllInput();
-        Page<InputOrgUnitDictionaryDto> orgUnitDictionariesPage = new PageImpl<>(dtos, pageable, dtos.size());
-        return orgUnitDictionariesPage;
     }
 
     public OrgUnitDictionaryDto getOne(Integer id) {

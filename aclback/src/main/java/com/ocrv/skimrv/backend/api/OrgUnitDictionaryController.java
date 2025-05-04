@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,9 @@ public class OrgUnitDictionaryController {
 
     @GetMapping("/input")
     public Page<InputOrgUnitDictionaryDto> getAllInput(Pageable pageable) {
-        return orgUnitDictionaryService.getAllInputPage(pageable);
+        List<InputOrgUnitDictionaryDto> dtos = orgUnitDictionaryService.getAllInput();
+        Page<InputOrgUnitDictionaryDto> orgUnitDictionariesPage = new PageImpl<>(dtos, pageable, dtos.size());
+        return orgUnitDictionariesPage;
     }
 
 
